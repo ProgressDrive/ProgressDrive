@@ -33,10 +33,14 @@ using System.Collections.Generic;
 using System.Text;
 using ToadicusTools;
 
-namespace PDRDController {
-	public static class RDTechTools {
-		public static StringBuilder SPrint(this RDTech tech, StringBuilder sb, int indent) {
-			if (indent < 0) {
+namespace PDRDController
+{
+	public static class RDTechTools
+	{
+		public static StringBuilder SPrint(this RDTech tech, StringBuilder sb, int indent)
+		{
+			if (indent < 0)
+			{
 				indent = 0;
 			}
 
@@ -56,7 +60,8 @@ namespace PDRDController {
 			return sb;
 		}
 
-		public static string SPrint(this RDTech tech, int indent) {
+		public static string SPrint(this RDTech tech, int indent)
+		{
 			StringBuilder sb = Tools.GetStringBuilder();
 
 			string msg = tech.SPrint(sb, indent).ToString();
@@ -66,7 +71,8 @@ namespace PDRDController {
 			return msg;
 		}
 
-		public static string SPrint(this RDTech tech) {
+		public static string SPrint(this RDTech tech)
+		{
 			return tech.SPrint(0);
 		}
 	}

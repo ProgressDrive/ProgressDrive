@@ -33,72 +33,90 @@ using System;
 using ToadicusTools;
 using UnityEngine;
 
-namespace PDRDController {
+namespace PDRDController
+{
 	[KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-	public class PDRDController : MonoBehaviour {
-		private bool firstRun;
+	public class PDRDController : MonoBehaviour
+	{
 		private RDController rdController;
+		private RDTechTree rdTechTree;
 
 		// @DEBUG: Get rid of this eventually
 		private ulong updateCount;
 
-		private void Awake() {
+		private void Awake()
+		{
 			this.Log("Awake");
 
 			RDController.OnRDTreeSpawn.Add(this.onRDTreeSpawn);
 			RDController.OnRDTreeDespawn.Add(this.onRDTreeDespawn);
-
-			this.firstRun = true;
+			RDTechTree.OnTechTreeSpawn.Add(this.onTechTreeSpawn);
+			RDTechTree.OnTechTreeDespawn.Add(this.onTechTreeDespawn);
 
 			this.updateCount = 0uL;
+			this.Log("Awoke");
 		}
 
-		private void Update() {
+		private void Update()
+		{
 			this.updateCount++;
 
-			if (this.rdController == null) {
-				if (RDController.Instance == null) {
-					this.Log(
-						"RDController is {0}null at update {1}",
-						this.updateCount > 1 ? "still " : string.Empty,
-						this.updateCount
-					);
-				}
-				else {
-					this.Log("Got RDController: {0} on update {1}", RDController.Instance, this.updateCount);
-					this.rdController = RDController.Instance;
-				}
-			}
-			else if (this.firstRun && this.rdController.nodes.Count > 0) {
-				this.firstRun = false;
 
-				this.Log("RDController node count was non-zero at update {0}", this.updateCount);
-
-				for (int nIdx = 0; nIdx < this.rdController.nodes.Count; nIdx++) {
-					RDNode node = this.rdController.nodes[nIdx];
-
-					if (node.name.ToLower() == "start") {
-						this.Log("Got node at index {0}:\n{1}", nIdx, node.SPrint(0));
-					}
-				}
-			}
 		}
 
-		private void OnDestroy() {
+		private void OnDestroy()
+		{
 			this.Log("OnDestroy");
-
 			RDController.OnRDTreeSpawn.Remove(this.onRDTreeSpawn);
 			RDController.OnRDTreeDespawn.Remove(this.onRDTreeDespawn);
+			RDTechTree.OnTechTreeSpawn.Remove(this.onTechTreeSpawn);
+			RDTechTree.OnTechTreeDespawn.Remove(this.onTechTreeDespawn);
+			this.Log("OnDestroyed");
 		}
 
-		private void onRDTreeSpawn(RDController ctrlr) {
+		private void onRDTreeSpawn(RDController ctrlr)
+		{
 			this.Log("Caught onRDTreeSpawn with controller {0}", ctrlr == null ? "null" : ctrlr.ToString());
 			this.rdController = ctrlr;
+
+			for (int nIdx = 0; nIdx < this.rdController.nodes.Count; nIdx++)
+			{
+				RDNode node = this.rdController.nodes[nIdx];
+
+				if (node.name.ToLower() == "start")
+				{
+					this.Log("Got RDNode 'start' at index {0}:\n{1}", nIdx, node.SPrint(0));
+					break;
+				}
+			}
 		}
 
-		private void onRDTreeDespawn(RDController ctrlr) {
+		private void onRDTreeDespawn(RDController ctrlr)
+		{
 			this.Log("Caught onRDTreeDespawn with controller {0}", ctrlr == null ? "null" : ctrlr.ToString());
 			this.rdController = null;
+		}
+
+		private void onTechTreeSpawn(RDTechTree tree)
+		{
+			this.rdTechTree = tree;
+			ProtoRDNode[] nodes = this.rdTechTree.GetTreeNodes();
+
+			for (int idx = 0; idx < nodes.Length; idx++)
+			{
+				ProtoRDNode node = nodes[idx];
+
+				if (node.tech.techID == "start")
+				{
+					this.Log("Got ProtoRDNode 'start' at index {0}:\n{1}", idx, node.SPrint(0));
+					break;
+				}
+			}
+		}
+
+		private void onTechTreeDespawn(RDTechTree tree)
+		{
+			this.rdTechTree = null;
 		}
 	}
 }

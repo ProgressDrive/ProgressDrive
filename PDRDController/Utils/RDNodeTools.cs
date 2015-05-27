@@ -33,12 +33,17 @@ using System.Collections.Generic;
 using System.Text;
 using ToadicusTools;
 
-namespace PDRDController {
-	public static class RDNodeTools {
+namespace PDRDController
+{
+	public static class RDNodeTools
+	{
 		private static Dictionary<int, Func<RDNode, string>> bakedRDNodeSPrints =
 			new Dictionary<int, Func<RDNode, string>>();
-		public static StringBuilder SPrint(this RDNode node, StringBuilder sb, int indent, uint depth) {
-			if (indent < 0) {
+
+		public static StringBuilder SPrint(this RDNode node, StringBuilder sb, int indent, uint depth)
+		{
+			if (indent < 0)
+			{
 				indent = 0;
 			}
 
@@ -54,10 +59,12 @@ namespace PDRDController {
 			sb.AddIntendedLine(string.Format("scale={0}", node.scale), subdent);
 			sb.AddIntendedLine(string.Format("state={0}", Enum.GetName(typeof(RDNode.State), node.state)), subdent);
 
-			if (node.icon != null) {
+			if (node.icon != null)
+			{
 				sb.AddIntendedLine(string.Format("icon={{name={0}, texture={1}}}", node.icon.name, node.icon.texture), subdent);
 			}
-			else {
+			else
+			{
 				sb.AddIntendedLine("icon=null", subdent);
 			}
 
@@ -67,19 +74,25 @@ namespace PDRDController {
 
 			sb.AddIntendedLine(string.Format("parents=[{0}]", node.parents.SPrint(SPrint)), subdent);
 
-			if (depth > 0 && node.children.Count > 0) {
+			if (depth > 0 && node.children.Count > 0)
+			{
 				depth--;
 				Func<RDNode, string> childFunc;
 
-				if (!bakedRDNodeSPrints.TryGetValue(subdent, out childFunc)) {
-					childFunc = delegate(RDNode arg) {
-						if (object.ReferenceEquals(arg, node)) {
+				if (!bakedRDNodeSPrints.TryGetValue(subdent, out childFunc))
+				{
+					childFunc = delegate(RDNode arg)
+					{
+						if (object.ReferenceEquals(arg, node))
+						{
 							return '\t' * subdent + "self reference";
 						}
-						else if (arg == null) {
+						else if (arg == null)
+						{
 							return '\t' * subdent + "null";
 						}
-						else {
+						else
+						{
 							return arg.SPrint(subdent + 1, depth);
 						}
 					};
@@ -93,7 +106,8 @@ namespace PDRDController {
 
 				sb.AddIntendedLine("]", subdent);
 			}
-			else {
+			else
+			{
 				sb.AddIntendedLine(string.Format("children=[{0}]", node.children.SPrint(SPrintSimple)), subdent);
 			}
 
@@ -126,10 +140,14 @@ namespace PDRDController {
 			return string.Format("{0} (RDNode)", node.name);
 		}
 
-		public static string SPrint(this RDNode.Parent parent) {
-			if (parent.parent != null) {
-				if (parent.parent.node != null) {
-					if (parent.parent.node.name != null) {
+		public static string SPrint(this RDNode.Parent parent)
+		{
+			if (parent.parent != null)
+			{
+				if (parent.parent.node != null)
+				{
+					if (parent.parent.node.name != null)
+					{
 						return parent.parent.node.name;
 					}
 				}

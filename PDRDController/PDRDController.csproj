@@ -32,6 +32,8 @@
     <Compile Include="PDRDController.cs" />
     <Compile Include="Utils\RDNodeTools.cs" />
     <Compile Include="Utils\RDTechTools.cs" />
+    <Compile Include="Utils\ProtoRDNodeTools.cs" />
+    <Compile Include="Utils\ProtoTechNodeTools.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
