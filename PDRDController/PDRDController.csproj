@@ -39,6 +39,7 @@
     <Compile Include="Tools\ProtoTechNodeTools.cs" />
     <Compile Include="Tools\TechNodeInfoTools.cs" />
     <Compile Include="UtilityClasses\DecayFunction.cs" />
+    <Compile Include="TimeKeeper\PDTimeKeeper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -66,5 +67,6 @@
     <Folder Include="TechTree\" />
     <Folder Include="Tools\" />
     <Folder Include="UtilityClasses\" />
+    <Folder Include="TimeKeeper\" />
   </ItemGroup>
 </Project>
