@@ -29,11 +29,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PDRDController.cs" />
-    <Compile Include="Utils\RDNodeTools.cs" />
-    <Compile Include="Utils\RDTechTools.cs" />
-    <Compile Include="Utils\ProtoRDNodeTools.cs" />
-    <Compile Include="Utils\ProtoTechNodeTools.cs" />
+    <Compile Include="TechTree\TechNodeInfo.cs" />
+    <Compile Include="TechTree\ProtoTechDecay.cs" />
+    <Compile Include="TechTree\TechTreeManager.cs" />
+    <Compile Include="TechTree\PDTechTreeController.cs" />
+    <Compile Include="Tools\RDNodeTools.cs" />
+    <Compile Include="Tools\RDTechTools.cs" />
+    <Compile Include="Tools\ProtoRDNodeTools.cs" />
+    <Compile Include="Tools\ProtoTechNodeTools.cs" />
+    <Compile Include="Tools\TechNodeInfoTools.cs" />
+    <Compile Include="UtilityClasses\DecayFunction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -58,6 +63,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Utils\" />
+    <Folder Include="TechTree\" />
+    <Folder Include="Tools\" />
+    <Folder Include="UtilityClasses\" />
   </ItemGroup>
 </Project>

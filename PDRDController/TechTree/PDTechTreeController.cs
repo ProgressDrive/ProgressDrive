@@ -33,20 +33,28 @@ using System;
 using ToadicusTools;
 using UnityEngine;
 
-namespace PDRDController
+namespace ProgressDrive.TechTree
 {
-	[KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-	public class PDRDController : MonoBehaviour
+	[KSPScenario(
+		ScenarioCreationOptions.AddToExistingCareerGames | ScenarioCreationOptions.AddToNewCareerGames,
+		GameScenes.SPACECENTER, GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION
+	)]
+	public class PDTechTreeController : ScenarioModule
 	{
+		private const string TECHTREEMANAGER_KEY = "TECHTREEMANAGER";
+
 		private RDController rdController;
 		private RDTechTree rdTechTree;
 
 		// @DEBUG: Get rid of this eventually
 		private ulong updateCount;
 
-		private void Awake()
+		#region ScenarioModule overrides
+		public override void OnAwake()
 		{
 			this.Log("Awake");
+
+			base.OnAwake();
 
 			RDController.OnRDTreeSpawn.Add(this.onRDTreeSpawn);
 			RDController.OnRDTreeDespawn.Add(this.onRDTreeDespawn);
@@ -57,11 +65,37 @@ namespace PDRDController
 			this.Log("Awoke");
 		}
 
+		public override void OnLoad(ConfigNode node)
+		{
+			this.Log("OnLoad");
+
+			if (!TechTreeManager.IsLoaded)
+			{
+				ConfigNode ttmNode = node.GetNode(TECHTREEMANAGER_KEY);
+
+				TechTreeManager.Load(ttmNode);
+
+				TechTreeManager.OnTechnologyResearched("basicRocketry", 3600d, 0d);
+			}
+		}
+
+		public override void OnSave(ConfigNode node)
+		{
+			if (TechTreeManager.IsLoaded)
+			{
+				node.RemoveNode(TECHTREEMANAGER_KEY);
+
+				ConfigNode ttmNode = node.AddNode(TECHTREEMANAGER_KEY);
+
+				TechTreeManager.Save(ttmNode);
+			}
+		}
+		#endregion
+
+		#region MonoBehaviour LifeCycle
 		private void Update()
 		{
 			this.updateCount++;
-
-
 		}
 
 		private void OnDestroy()
@@ -76,46 +110,35 @@ namespace PDRDController
 
 		private void onRDTreeSpawn(RDController ctrlr)
 		{
-			this.Log("Caught onRDTreeSpawn with controller {0}", ctrlr == null ? "null" : ctrlr.ToString());
+			this.Log("Caught onRDTreeSpawn with RDController {0}", ctrlr == null ? "null" : ctrlr.ToString());
 			this.rdController = ctrlr;
 
 			for (int nIdx = 0; nIdx < this.rdController.nodes.Count; nIdx++)
 			{
 				RDNode node = this.rdController.nodes[nIdx];
 
-				if (node.name.ToLower() == "start")
-				{
-					this.Log("Got RDNode 'start' at index {0}:\n{1}", nIdx, node.SPrint(0));
-					break;
-				}
+				node.tech.scienceCost = TechTreeManager.GetTechCostByTechIDAtUT(
+					node.tech.techID, Planetarium.GetUniversalTime()
+				);
 			}
 		}
+		#endregion
 
 		private void onRDTreeDespawn(RDController ctrlr)
 		{
-			this.Log("Caught onRDTreeDespawn with controller {0}", ctrlr == null ? "null" : ctrlr.ToString());
+			this.Log("Caught onRDTreeDespawn, nulling RDController");
 			this.rdController = null;
 		}
 
 		private void onTechTreeSpawn(RDTechTree tree)
 		{
+			this.Log("Caught onTechTreeSpawn with RDTechTree {0}", tree == null ? "null" : tree.ToString());
 			this.rdTechTree = tree;
-			ProtoRDNode[] nodes = this.rdTechTree.GetTreeNodes();
-
-			for (int idx = 0; idx < nodes.Length; idx++)
-			{
-				ProtoRDNode node = nodes[idx];
-
-				if (node.tech.techID == "start")
-				{
-					this.Log("Got ProtoRDNode 'start' at index {0}:\n{1}", idx, node.SPrint(0));
-					break;
-				}
-			}
 		}
 
 		private void onTechTreeDespawn(RDTechTree tree)
 		{
+			this.Log("Caught onTechTreeDespawn, nulling RDTechTree");
 			this.rdTechTree = null;
 		}
 	}

@@ -2,7 +2,7 @@
 // ProgressDrive
 // A KSP Mod by toadicus
 //
-// ProtoTechNodeTools.cs
+// DecayFunction.cs
 //
 // This is free and unencumbered software released into the public domain.
 //
@@ -29,30 +29,34 @@
 //
 
 using System;
-using System.Text;
-using ToadicusTools;
 
-namespace PDRDController
+namespace ProgressDrive
 {
-	public static class ProtoTechNodeTools
+	public class DecayFunction
 	{
-		public static StringBuilder SPrint(this ProtoTechNode tech, StringBuilder sb, int indent)
+		private const double EULER = 2.7182818284590452d;
+		private const double EULERSQR = 7.3890560989306502d;
+
+		public double HalfLife;
+
+		public double InitialUT;
+
+		public DecayFunction(double halflife, double initialut)
 		{
-			if (indent < 0)
+			this.HalfLife = halflife;
+			this.InitialUT = initialut;
+		}
+
+		public double DecayFactorAtUT(double ut)
+		{
+			if (ut <= this.InitialUT)
 			{
-				indent = 0;
+				return 1d;
 			}
-
-			int subdent = indent + 1;
-
-			sb.AddIntendedLine("ProtoTechNodeTools {", indent);
-			sb.AddIntendedLine(string.Format("techID={0}", tech.techID), subdent);
-			sb.AddIntendedLine(string.Format("scienceCost={0}", tech.scienceCost), subdent);
-			sb.AddIntendedLine(string.Format("state={0}", Enum.GetName(typeof(RDTech.State), tech.state)), subdent);
-			sb.AddIntendedLine(string.Format("partsPurchased=[{0}]", tech.partsPurchased.SPrint((ap) => ap.title)), subdent);
-			sb.AddIntendedLine("}", indent);
-
-			return sb;
+			else
+			{
+				return 1d / Math.Log((ut - InitialUT) * (EULERSQR - EULER) / HalfLife + EULER);
+			}
 		}
 	}
 }

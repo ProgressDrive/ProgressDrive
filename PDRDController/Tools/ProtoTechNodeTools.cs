@@ -2,7 +2,7 @@
 // ProgressDrive
 // A KSP Mod by toadicus
 //
-// RDTechTools.cs
+// ProtoTechNodeTools.cs
 //
 // This is free and unencumbered software released into the public domain.
 //
@@ -29,15 +29,14 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using ToadicusTools;
 
-namespace PDRDController
+namespace ProgressDrive
 {
-	public static class RDTechTools
+	public static class ProtoTechNodeTools
 	{
-		public static StringBuilder SPrint(this RDTech tech, StringBuilder sb, int indent)
+		public static StringBuilder SPrint(this ProtoTechNode tech, StringBuilder sb, int indent)
 		{
 			if (indent < 0)
 			{
@@ -46,34 +45,14 @@ namespace PDRDController
 
 			int subdent = indent + 1;
 
-			sb.AddIntendedLine("RDTech {", indent);
-			sb.AddIntendedLine(string.Format("name={0}", tech.name), subdent);
+			sb.AddIntendedLine("ProtoTechNodeTools {", indent);
 			sb.AddIntendedLine(string.Format("techID={0}", tech.techID), subdent);
-			sb.AddIntendedLine(string.Format("description={0}", tech.description), subdent);
 			sb.AddIntendedLine(string.Format("scienceCost={0}", tech.scienceCost), subdent);
-			sb.AddIntendedLine(string.Format("hideIfNoParts={0}", tech.hideIfNoParts), subdent);
 			sb.AddIntendedLine(string.Format("state={0}", Enum.GetName(typeof(RDTech.State), tech.state)), subdent);
-			sb.AddIntendedLine(string.Format("partsAssigned=[{0}]", tech.partsAssigned.SPrint((ap) => ap.title)), subdent);
 			sb.AddIntendedLine(string.Format("partsPurchased=[{0}]", tech.partsPurchased.SPrint((ap) => ap.title)), subdent);
 			sb.AddIntendedLine("}", indent);
 
 			return sb;
-		}
-
-		public static string SPrint(this RDTech tech, int indent)
-		{
-			StringBuilder sb = Tools.GetStringBuilder();
-
-			string msg = tech.SPrint(sb, indent).ToString();
-
-			Tools.PutStringBuilder(sb);
-
-			return msg;
-		}
-
-		public static string SPrint(this RDTech tech)
-		{
-			return tech.SPrint(0);
 		}
 	}
 }

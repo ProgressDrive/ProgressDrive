@@ -2,7 +2,7 @@
 // ProgressDrive
 // A KSP Mod by toadicus
 //
-// ProtoRDNodeTools.cs
+// RDNodeTools.cs
 //
 // This is free and unencumbered software released into the public domain.
 //
@@ -33,14 +33,14 @@ using System.Collections.Generic;
 using System.Text;
 using ToadicusTools;
 
-namespace PDRDController
+namespace ProgressDrive
 {
-	public static class ProtoRDNodeTools
+	public static class RDNodeTools
 	{
-		private static Dictionary<int, Func<ProtoRDNode, string>> bakedRDNodeSPrints =
-			new Dictionary<int, Func<ProtoRDNode, string>>();
-		
-		public static StringBuilder SPrint(this ProtoRDNode node, StringBuilder sb, int indent, uint depth)
+		private static Dictionary<int, Func<RDNode, string>> bakedRDNodeSPrints =
+			new Dictionary<int, Func<RDNode, string>>();
+
+		public static StringBuilder SPrint(this RDNode node, StringBuilder sb, int indent, uint depth)
 		{
 			if (indent < 0)
 			{
@@ -51,37 +51,51 @@ namespace PDRDController
 
 			sb.AddIntendedLine("RDNode {", indent);
 
+			sb.AddIntendedLine(string.Format("name={0}", node.name), subdent);
+			sb.AddIntendedLine(string.Format("description={0}", node.description), subdent);
+			sb.AddIntendedLine(string.Format("treeNode={0}", node.treeNode), subdent);
 			sb.AddIntendedLine(string.Format("AnyParentToUnlock={0}", node.AnyParentToUnlock), subdent);
-			sb.AddIntendedLine(string.Format("iconRef={0}", node.iconRef), subdent);
+			sb.AddIntendedLine(string.Format("selected={0}", node.selected), subdent);
+			sb.AddIntendedLine(string.Format("scale={0}", node.scale), subdent);
+			sb.AddIntendedLine(string.Format("state={0}", Enum.GetName(typeof(RDNode.State), node.state)), subdent);
+
+			if (node.icon != null)
+			{
+				sb.AddIntendedLine(string.Format("icon={{name={0}, texture={1}}}", node.icon.name, node.icon.texture), subdent);
+			}
+			else
+			{
+				sb.AddIntendedLine("icon=null", subdent);
+			}
 
 			sb.AddIntendedLine("tech=(\n", subdent);
 			node.tech.SPrint(sb, subdent + 1);
 			sb.AddIntendedLine(")", subdent);
 
-			sb.AddIntendedLine(string.Format("parents=[{0}]", node.parents.SPrint(SPrintSimple)), subdent);
+			sb.AddIntendedLine(string.Format("parents=[{0}]", node.parents.SPrint(SPrint)), subdent);
 
 			if (depth > 0 && node.children.Count > 0)
 			{
 				depth--;
-				Func<ProtoRDNode, string> childFunc;
+				Func<RDNode, string> childFunc;
 
 				if (!bakedRDNodeSPrints.TryGetValue(subdent, out childFunc))
 				{
-					childFunc = delegate(ProtoRDNode arg)
+					childFunc = delegate(RDNode arg)
+					{
+						if (object.ReferenceEquals(arg, node))
 						{
-							if (object.ReferenceEquals(arg, node))
-							{
-								return '\t' * subdent + "self reference";
-							}
-							else if (arg == null)
-							{
-								return '\t' * subdent + "null";
-							}
-							else
-							{
-								return arg.SPrint(subdent + 1, depth);
-							}
-						};
+							return '\t' * subdent + "self reference";
+						}
+						else if (arg == null)
+						{
+							return '\t' * subdent + "null";
+						}
+						else
+						{
+							return arg.SPrint(subdent + 1, depth);
+						}
+					};
 					bakedRDNodeSPrints[subdent] = childFunc;
 				}
 
@@ -102,7 +116,7 @@ namespace PDRDController
 			return sb;
 		}
 
-		public static string SPrint(this ProtoRDNode node, int indent, uint depth)
+		public static string SPrint(this RDNode node, int indent, uint depth)
 		{
 			StringBuilder sb = Tools.GetStringBuilder();
 			string msg;
@@ -116,14 +130,30 @@ namespace PDRDController
 			return msg;
 		}
 
-		public static string SPrint(this ProtoRDNode node, int indent)
+		public static string SPrint(this RDNode node, int indent)
 		{
 			return node.SPrint(indent, uint.MaxValue);
 		}
 
-		public static string SPrintSimple(this ProtoRDNode node)
+		public static string SPrintSimple(this RDNode node)
 		{
-			return string.Format("{0} (ProtoRDNode)", node.tech.techID);
+			return string.Format("{0} (RDNode)", node.name);
+		}
+
+		public static string SPrint(this RDNode.Parent parent)
+		{
+			if (parent.parent != null)
+			{
+				if (parent.parent.node != null)
+				{
+					if (parent.parent.node.name != null)
+					{
+						return parent.parent.node.name;
+					}
+				}
+			}
+
+			return "null";
 		}
 	}
 }
