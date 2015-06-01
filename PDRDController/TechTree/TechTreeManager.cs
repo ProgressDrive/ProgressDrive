@@ -157,7 +157,7 @@ namespace ProgressDrive.TechTree
 
 			if (treeDecayNodesByTechID.TryGetValue(techID, out techDecay))
 			{
-				Log("Got OnTechnologyResearched for {0} after it was already researched; ignoring.");
+				Log("Got OnTechnologyResearched for {0} after it was already researched; ignoring.", techID);
 			}
 			else
 			{
@@ -274,16 +274,24 @@ namespace ProgressDrive.TechTree
 
 		private static void Log(string format, params object[] args)
 		{
-			format = string.Format("[TechNodeManager] {0}", format);
+			string msg = string.Format("[TechNodeManager] {0}", string.Format(format, args));
 
-			Tools.PostLogMessage(format, args);
+			Tools.PostErrorMessage(msg);
 		}
 
 		private static void LogError(string format, params object[] args)
 		{
-			format = string.Format("[TechNodeManager] {0}", format);
+			string msg = string.Format("[TechNodeManager] {0}", string.Format(format, args));
 
-			Tools.PostErrorMessage(format, args);
+			Tools.PostErrorMessage(msg);
+		}
+
+		[System.Diagnostics.Conditional("DEBUG")]
+		private static void LogDebug(string format, params object[] args)
+		{
+			string msg = string.Format("[TechNodeManager] {0}", string.Format(format, args));
+
+			Tools.PostDebugMessage(msg);
 		}
 
 		public static event TechNodeLoadedHandler OnTechNodeLoaded;
